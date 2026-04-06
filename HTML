@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>BAS Calculator Australia</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–black: #111;
+–mid: #555;
+–light: #888;
+–border: #e5e5e5;
+–bg: #f9f9f8;
+–white: #fff;
+–accent: #1a1a1a;
+–green: #2d6a4f;
+}
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+font-family: ‘DM Sans’, sans-serif;
+background: var(–bg);
+color: var(–black);
+min-height: 100vh;
+padding: 0 0 80px;
+}
+
+/* ── Header ── */
+header {
+background: var(–white);
+border-bottom: 1px solid var(–border);
+padding: 20px 24px 18px;
+position: sticky;
+top: 0;
+z-index: 10;
+}
+
+.header-tag {
+font-size: 10px;
+font-weight: 600;
+letter-spacing: .12em;
+text-transform: uppercase;
+color: var(–light);
+margin-bottom: 4px;
+}
+
+header h1 {
+font-family: ‘DM Serif Display’, serif;
+font-size: 22px;
+font-weight: 400;
+color: var(–black);
+letter-spacing: -.02em;
+}
+
+/* ── Main ── */
+main {
+max-width: 480px;
+margin: 0 auto;
+padding: 28px 20px 0;
+}
+
+/* ── Card ── */
+.card {
+background: var(–white);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 24px;
+margin-bottom: 16px;
+}
+
+.card-title {
+font-size: 11px;
+font-weight: 600;
+letter-spacing: .1em;
+text-transform: uppercase;
+color: var(–light);
+margin-bottom: 18px;
+}
+
+/* ── Fields ── */
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+
+label {
+display: block;
+font-size: 13px;
+font-weight: 500;
+color: var(–mid);
+margin-bottom: 7px;
+}
+
+input, select {
+width: 100%;
+border: 1.5px solid var(–border);
+border-radius: 10px;
+padding: 13px 14px;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 16px;
+color: var(–black);
+background: var(–bg);
+outline: none;
+transition: border-color .15s;
+-webkit-appearance: none;
+}
+
+input:focus, select:focus { border-color: var(–black); background: var(–white); }
+
+.input-prefix {
+position: relative;
+}
+
+.input-prefix span {
+position: absolute;
+left: 14px;
+top: 50%;
+transform: translateY(-50%);
+font-size: 15px;
+color: var(–mid);
+pointer-events: none;
+}
+
+.input-prefix input { padding-left: 26px; }
+
+.field-row {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 12px;
+}
+
+/* ── Button ── */
+.btn-calc {
+width: 100%;
+background: var(–black);
+color: var(–white);
+border: none;
+border-radius: 12px;
+padding: 16px;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 16px;
+font-weight: 600;
+cursor: pointer;
+transition: opacity .15s, transform .1s;
+letter-spacing: -.01em;
+}
+
+.btn-calc:active { opacity: .8; transform: scale(.98); }
+
+/* ── Result ── */
+#result-section { display: none; }
+
+.result-card {
+background: var(–white);
+border: 1.5px solid var(–black);
+border-radius: 16px;
+padding: 24px;
+margin-bottom: 16px;
+}
+
+.result-label {
+font-size: 12px;
+font-weight: 600;
+letter-spacing: .1em;
+text-transform: uppercase;
+color: var(–light);
+margin-bottom: 6px;
+}
+
+.result-amount {
+font-family: ‘DM Serif Display’, serif;
+font-size: 42px;
+letter-spacing: -.03em;
+color: var(–black);
+line-height: 1;
+margin-bottom: 8px;
+}
+
+.result-amount.liability { color: #c0392b; }
+.result-amount.refund { color: var(–green); }
+
+.result-note {
+font-size: 13px;
+color: var(–light);
+line-height: 1.5;
+}
+
+.result-pills {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+margin-top: 16px;
+padding-top: 16px;
+border-top: 1px solid var(–border);
+}
+
+.pill {
+background: var(–bg);
+border: 1px solid var(–border);
+border-radius: 20px;
+padding: 5px 12px;
+font-size: 12px;
+color: var(–mid);
+white-space: nowrap;
+}
+
+/* ── Locked section ── */
+.locked-card {
+border-radius: 16px;
+overflow: hidden;
+border: 1px solid var(–border);
+margin-bottom: 16px;
+position: relative;
+}
+
+.locked-inner {
+padding: 24px;
+background: var(–white);
+filter: blur(5px);
+pointer-events: none;
+user-select: none;
+}
+
+.locked-overlay {
+position: absolute;
+inset: 0;
+background: linear-gradient(180deg, rgba(255,255,255,.1) 0%, rgba(255,255,255,.92) 60%);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: flex-end;
+padding: 24px;
+}
+
+.lock-icon {
+font-size: 24px;
+margin-bottom: 8px;
+}
+
+.lock-title {
+font-family: ‘DM Serif Display’, serif;
+font-size: 20px;
+text-align: center;
+margin-bottom: 6px;
+letter-spacing: -.02em;
+}
+
+.lock-sub {
+font-size: 13px;
+color: var(–mid);
+text-align: center;
+margin-bottom: 18px;
+line-height: 1.5;
+}
+
+.btn-unlock {
+width: 100%;
+background: var(–black);
+color: var(–white);
+border: none;
+border-radius: 12px;
+padding: 16px;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 15px;
+font-weight: 600;
+cursor: pointer;
+transition: opacity .15s;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+}
+
+.btn-unlock:active { opacity: .8; }
+
+.btn-unlock .price-badge {
+background: rgba(255,255,255,.18);
+border-radius: 6px;
+padding: 2px 8px;
+font-size: 13px;
+}
+
+/* ── What’s included ── */
+.includes {
+display: flex;
+flex-direction: column;
+gap: 6px;
+margin-bottom: 18px;
+width: 100%;
+}
+
+.includes-item {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 13px;
+color: var(–mid);
+}
+
+.includes-item::before {
+content: ‘✓’;
+color: var(–black);
+font-weight: 700;
+font-size: 12px;
+flex-shrink: 0;
+}
+
+/* ── Unlocked full content ── */
+.full-content { display: none; }
+
+.full-content.visible { display: block; }
+
+.section-block {
+background: var(–white);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 22px;
+margin-bottom: 14px;
+}
+
+.section-block h3 {
+font-size: 13px;
+font-weight: 600;
+letter-spacing: .08em;
+text-transform: uppercase;
+color: var(–light);
+margin-bottom: 14px;
+}
+
+.breakdown-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px 0;
+border-bottom: 1px solid var(–border);
+font-size: 14px;
+}
+
+.breakdown-row:last-child { border-bottom: none; padding-bottom: 0; }
+.breakdown-row:first-of-type { padding-top: 0; }
+
+.breakdown-row .label { color: var(–mid); }
+.breakdown-row .value { font-weight: 600; color: var(–black); }
+.breakdown-row .value.neg { color: #c0392b; }
+.breakdown-row .value.pos { color: var(–green); }
+
+.total-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 12px 0 0;
+font-size: 15px;
+font-weight: 700;
+border-top: 2px solid var(–black);
+margin-top: 8px;
+}
+
+.prose {
+font-size: 14px;
+color: var(–mid);
+line-height: 1.7;
+}
+
+.prose + .prose { margin-top: 10px; }
+
+.step-list {
+list-style: none;
+counter-reset: steps;
+}
+
+.step-list li {
+counter-increment: steps;
+display: flex;
+gap: 12px;
+font-size: 14px;
+color: var(–mid);
+line-height: 1.6;
+padding: 8px 0;
+border-bottom: 1px solid var(–border);
+}
+
+.step-list li:last-child { border-bottom: none; }
+
+.step-list li::before {
+content: counter(steps);
+min-width: 22px;
+height: 22px;
+background: var(–black);
+color: var(–white);
+border-radius: 50%;
+font-size: 11px;
+font-weight: 700;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+margin-top: 1px;
+}
+
+.opportunity-item {
+display: flex;
+gap: 12px;
+padding: 12px 0;
+border-bottom: 1px solid var(–border);
+font-size: 14px;
+}
+
+.opportunity-item:last-child { border-bottom: none; }
+
+.opp-icon {
+font-size: 20px;
+flex-shrink: 0;
+margin-top: 1px;
+}
+
+.opp-title {
+font-weight: 600;
+color: var(–black);
+margin-bottom: 3px;
+}
+
+.opp-desc { color: var(–mid); line-height: 1.5; }
+
+.unlocked-badge {
+display: inline-flex;
+align-items: center;
+gap: 5px;
+background: #e8f5e9;
+color: var(–green);
+border-radius: 20px;
+padding: 4px 12px;
+font-size: 12px;
+font-weight: 600;
+margin-bottom: 16px;
+}
+
+/* ── Disclaimer ── */
+.disclaimer {
+font-size: 11px;
+color: #aaa;
+text-align: center;
+line-height: 1.6;
+padding: 0 8px;
+margin-top: 8px;
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(12px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+#result-section { animation: fadeUp .3s ease forwards; }
+
+.full-content.visible .section-block {
+animation: fadeUp .3s ease forwards;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="header-tag">Australia · ATO Compliant</div>
+  <h1>BAS Calculator</h1>
+</header>
+
+<main>
+
+  <!-- INPUT CARD -->
+
+  <div class="card">
+    <div class="card-title">Your Business Details</div>
+
+```
+<div class="field">
+  <label>BAS Period</label>
+  <select id="period">
+    <option value="quarterly">Quarterly</option>
+    <option value="monthly">Monthly</option>
+    <option value="annual">Annual</option>
+  </select>
+</div>
+
+<div class="field">
+  <label>Total Sales (incl. GST)</label>
+  <div class="input-prefix">
+    <span>$</span>
+    <input type="number" id="totalSales" placeholder="0.00" inputmode="decimal" min="0">
+  </div>
+</div>
+
+<div class="field-row">
+  <div class="field">
+    <label>GST-Free Sales</label>
+    <div class="input-prefix">
+      <span>$</span>
+      <input type="number" id="gstFreeSales" placeholder="0.00" inputmode="decimal" min="0">
+    </div>
+  </div>
+  <div class="field">
+    <label>Export Sales</label>
+    <div class="input-prefix">
+      <span>$</span>
+      <input type="number" id="exportSales" placeholder="0.00" inputmode="decimal" min="0">
+    </div>
+  </div>
+</div>
+
+<div class="field">
+  <label>Total Purchases (incl. GST)</label>
+  <div class="input-prefix">
+    <span>$</span>
+    <input type="number" id="totalPurchases" placeholder="0.00" inputmode="decimal" min="0">
+  </div>
+</div>
+
+<div class="field">
+  <label>PAYG Withholding (if applicable)</label>
+  <div class="input-prefix">
+    <span>$</span>
+    <input type="number" id="paygW" placeholder="0.00" inputmode="decimal" min="0">
+  </div>
+</div>
+
+<div class="field">
+  <label>PAYG Instalment (if applicable)</label>
+  <div class="input-prefix">
+    <span>$</span>
+    <input type="number" id="paygI" placeholder="0.00" inputmode="decimal" min="0">
+  </div>
+</div>
+```
+
+  </div>
+
+<button class="btn-calc" onclick="calculate()">Calculate My BAS</button>
+
+  <!-- RESULT SECTION -->
+
+  <div id="result-section">
+
+```
+<!-- Basic Result -->
+<div class="result-card" id="basic-result">
+  <div class="result-label">Estimated BAS Amount</div>
+  <div class="result-amount" id="result-amount">$0.00</div>
+  <div class="result-note" id="result-note">—</div>
+  <div class="result-pills" id="result-pills"></div>
+</div>
+
+<!-- Locked Section -->
+<div class="locked-card" id="locked-section">
+  <div class="locked-inner">
+    <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:14px;">Detailed Breakdown</div>
+    <div style="height:8px;background:#eee;border-radius:4px;margin-bottom:10px;width:90%"></div>
+    <div style="height:8px;background:#eee;border-radius:4px;margin-bottom:10px;width:70%"></div>
+    <div style="height:8px;background:#eee;border-radius:4px;margin-bottom:24px;width:80%"></div>
+    <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:14px;">What This Means</div>
+    <div style="height:8px;background:#eee;border-radius:4px;margin-bottom:10px;width:95%"></div>
+    <div style="height:8px;background:#eee;border-radius:4px;margin-bottom:10px;width:65%"></div>
+    <div style="height:8px;background:#eee;border-radius:4px;margin-bottom:24px;width:75%"></div>
+    <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:14px;">Hidden Opportunities</div>
+    <div style="height:8px;background:#eee;border-radius:4px;margin-bottom:10px;width:85%"></div>
+    <div style="height:8px;background:#eee;border-radius:4px;width:60%"></div>
+  </div>
+
+  <div class="locked-overlay">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title">Full BAS Analysis</div>
+    <div class="lock-sub">Get your complete breakdown, filing guidance,<br>and tax-saving opportunities.</div>
+    <div class="includes">
+      <div class="includes-item">Line-by-line GST breakdown (G1–G20)</div>
+      <div class="includes-item">What your result means for cash flow</div>
+      <div class="includes-item">Step-by-step filing checklist</div>
+      <div class="includes-item">Hidden deductions you may have missed</div>
+    </div>
+    <button class="btn-unlock" onclick="unlock()">
+      Unlock Full Answer
+      <span class="price-badge">$6.99</span>
+    </button>
+  </div>
+</div>
+
+<!-- Unlocked Full Content -->
+<div class="full-content" id="full-content">
+
+  <div class="unlocked-badge">✓ Unlocked</div>
+
+  <!-- Detailed Breakdown -->
+  <div class="section-block">
+    <h3>Line-by-Line Breakdown</h3>
+
+    <div class="breakdown-row">
+      <span class="label">G1 – Total Sales</span>
+      <span class="value" id="b-g1">—</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="label">G2 – Export Sales</span>
+      <span class="value neg" id="b-g2">—</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="label">G3 – GST-Free Sales</span>
+      <span class="value neg" id="b-g3">—</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="label">G8 – GST-Taxable Sales</span>
+      <span class="value" id="b-g8">—</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="label">1A – GST on Sales</span>
+      <span class="value neg" id="b-1a">—</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="label">G10 – Total Purchases</span>
+      <span class="value" id="b-g10">—</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="label">1B – GST Credits</span>
+      <span class="value pos" id="b-1b">—</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="label">W1 – PAYG Withholding</span>
+      <span class="value neg" id="b-w1">—</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="label">T7 – PAYG Instalment</span>
+      <span class="value neg" id="b-t7">—</span>
+    </div>
+    <div class="total-row">
+      <span>Net Amount Payable</span>
+      <span id="b-total">—</span>
+    </div>
+  </div>
+
+  <!-- What This Means -->
+  <div class="section-block">
+    <h3>What This Means</h3>
+    <p class="prose" id="meaning-text">—</p>
+    <p class="prose" id="meaning-text-2">—</p>
+  </div>
+
+  <!-- What To Do Next -->
+  <div class="section-block">
+    <h3>What To Do Next</h3>
+    <ol class="step-list" id="steps-list"></ol>
+  </div>
+
+  <!-- Hidden Opportunities -->
+  <div class="section-block">
+    <h3>Hidden Opportunities</h3>
+    <div id="opportunities"></div>
+  </div>
+
+</div>
+
+<p class="disclaimer">This calculator provides an estimate only and is not financial or tax advice. Always verify with your accountant or the ATO. Figures based on standard GST rate of 10%.</p>
+```
+
+  </div>
+
+</main>
+
+<script>
+  let calcData = {};
+  let isUnlocked = false;
+
+  function fmt(n) {
+    return '$' + Math.abs(n).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function calculate() {
+    const totalSales    = parseFloat(document.getElementById('totalSales').value)    || 0;
+    const gstFreeSales  = parseFloat(document.getElementById('gstFreeSales').value)  || 0;
+    const exportSales   = parseFloat(document.getElementById('exportSales').value)   || 0;
+    const totalPurchases= parseFloat(document.getElementById('totalPurchases').value)|| 0;
+    const paygW         = parseFloat(document.getElementById('paygW').value)         || 0;
+    const paygI         = parseFloat(document.getElementById('paygI').value)         || 0;
+
+    // G-fields
+    const g1 = totalSales;
+    const g2 = exportSales;
+    const g3 = gstFreeSales;
+    const g8 = Math.max(0, g1 - g2 - g3);           // GST-taxable sales
+    const gst1A = g8 / 11;                           // GST collected on sales
+    const g10 = totalPurchases;
+    const gst1B = g10 / 11;                          // GST credits on purchases
+    const netGST = gst1A - gst1B;
+    const netAmount = netGST + paygW + paygI;
+
+    calcData = { g1, g2, g3, g8, gst1A, g10, gst1B, paygW, paygI, netGST, netAmount };
+
+    // Basic result
+    const amountEl = document.getElementById('result-amount');
+    const noteEl   = document.getElementById('result-note');
+    const pillsEl  = document.getElementById('result-pills');
+
+    amountEl.textContent = fmt(netAmount);
+    amountEl.className   = 'result-amount ' + (netAmount >= 0 ? 'liability' : 'refund');
+
+    if (netAmount > 0) {
+      noteEl.textContent = 'You owe the ATO this amount for the period.';
+    } else if (netAmount < 0) {
+      noteEl.textContent = 'You are due a refund from the ATO for this period.';
+    } else {
+      noteEl.textContent = 'Your BAS nets to zero — nothing owed or refunded.';
+    }
+
+    pillsEl.innerHTML = '';
+    const pills = [
+      'GST Collected: ' + fmt(gst1A),
+      'GST Credits: '   + fmt(gst1B),
+      'Net GST: '       + fmt(netGST),
+    ];
+    pills.forEach(p => {
+      const el = document.createElement('div');
+      el.className = 'pill';
+      el.textContent = p;
+      pillsEl.appendChild(el);
+    });
+
+    // Show result section
+    document.getElementById('result-section').style.display = 'block';
+
+    // If already unlocked, repopulate full content
+    if (isUnlocked) populateFull();
+
+    // Scroll to result
+    setTimeout(() => {
+      document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  }
+
+  function unlock() {
+    isUnlocked = true;
+    document.getElementById('locked-section').style.display = 'none';
+    document.getElementById('full-content').classList.add('visible');
+    populateFull();
+    document.getElementById('full-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function populateFull() {
+    const { g1, g2, g3, g8, gst1A, g10, gst1B, paygW, paygI, netGST, netAmount } = calcData;
+
+    document.getElementById('b-g1').textContent  = fmt(g1);
+    document.getElementById('b-g2').textContent  = g2 ? '– ' + fmt(g2) : '$0.00';
+    document.getElementById('b-g3').textContent  = g3 ? '– ' + fmt(g3) : '$0.00';
+    document.getElementById('b-g8').textContent  = fmt(g8);
+    document.getElementById('b-1a').textContent  = '– ' + fmt(gst1A);
+    document.getElementById('b-g10').textContent = fmt(g10);
+    document.getElementById('b-1b').textContent  = '+ ' + fmt(gst1B);
+    document.getElementById('b-w1').textContent  = paygW ? '– ' + fmt(paygW) : '$0.00';
+    document.getElementById('b-t7').textContent  = paygI ? '– ' + fmt(paygI) : '$0.00';
+
+    const totalEl = document.getElementById('b-total');
+    totalEl.textContent = (netAmount >= 0 ? '' : '− ') + fmt(netAmount);
+    totalEl.className   = netAmount >= 0 ? 'value neg' : 'value pos';
+
+    // Meaning
+    const m1 = document.getElementById('meaning-text');
+    const m2 = document.getElementById('meaning-text-2');
+    if (netAmount > 0) {
+      m1.textContent = `Your business collected ${fmt(gst1A)} in GST from customers but only paid ${fmt(gst1B)} in GST on purchases. The difference of ${fmt(netGST)} is owed to the ATO, plus any PAYG obligations.`;
+      m2.textContent = `A liability means your sales exceeded your creditable purchases this period — a sign of positive business activity. Ensure funds are set aside before the due date to avoid ATO penalties or interest charges.`;
+    } else if (netAmount < 0) {
+      m1.textContent = `Your input tax credits (${fmt(gst1B)}) exceeded your GST on sales (${fmt(gst1A)}). The ATO owes you a refund of ${fmt(Math.abs(netAmount))} for this period.`;
+      m2.textContent = `Refunds typically arise when you've made large capital purchases or had a slow revenue period. The ATO generally processes refunds within 28 days of lodgement. Verify all purchase invoices include a valid ABN and show GST.`;
+    } else {
+      m1.textContent = 'Your GST collected and credits balance out exactly. No payment or refund is due for GST this period.';
+      m2.textContent = 'Ensure all supporting documents are retained for five years in case of an ATO audit.';
+    }
+
+    // Steps
+    const period = document.getElementById('period').value;
+    const steps = [
+      'Reconcile your accounting software against bank statements for the ' + period + ' period.',
+      'Confirm all sales invoices are issued with your ABN and 10% GST clearly stated.',
+      'Verify all purchase receipts are GST-registered supplier invoices (valid tax invoices).',
+      netAmount > 0
+        ? `Transfer ${fmt(netAmount)} to a dedicated ATO payment account before the due date.`
+        : `Lodge your BAS online via myGov or the ATO Business Portal to trigger your ${fmt(Math.abs(netAmount))} refund.`,
+      'Lodge your BAS via the ATO Business Portal, your accountant, or registered BAS agent before the due date.',
+      'Keep all invoices, receipts, and bank records for a minimum of five years.',
+    ];
+
+    const stepsList = document.getElementById('steps-list');
+    stepsList.innerHTML = '';
+    steps.forEach(s => {
+      const li = document.createElement('li');
+      li.textContent = s;
+      stepsList.appendChild(li);
+    });
+
+    // Opportunities
+    const opps = [
+      {
+        icon: '🚗',
+        title: 'Vehicle & Travel Deductions',
+        desc: 'If you use a vehicle for business, you may be able to claim GST credits on fuel, servicing, and registration — even on a percentage-of-use basis.',
+      },
+      {
+        icon: '💻',
+        title: 'Home Office Equipment',
+        desc: 'Computers, phones, desks, and monitors purchased for business use are fully creditable. Check any personal-use split for accurate apportionment.',
+      },
+      {
+        icon: '📦',
+        title: 'Stock & Inventory Timing',
+        desc: `With ${fmt(g10)} in purchases this period, review timing of stock orders — bringing forward purchases before period end can increase your GST credits.`,
+      },
+      {
+        icon: '🏢',
+        title: 'Rent & Utilities',
+        desc: 'Business premises rent and utility bills typically include GST. Ensure these are coded correctly in your accounts to maximise 1B credits.',
+      },
+    ];
+
+    const oppEl = document.getElementById('opportunities');
+    oppEl.innerHTML = '';
+    opps.forEach(o => {
+      oppEl.innerHTML += `
+        <div class="opportunity-item">
+          <div class="opp-icon">${o.icon}</div>
+          <div>
+            <div class="opp-title">${o.title}</div>
+            <div class="opp-desc">${o.desc}</div>
+          </div>
+        </div>`;
+    });
+  }
+</script>
+
+</body>
+</html>
